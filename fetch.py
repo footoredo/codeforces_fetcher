@@ -5,11 +5,11 @@ from BeautifulSoup import BeautifulSoup
 
 failure_links = open("failure_links","a")
 
-def 
+key_word = "random"
 
 def get_editorial(link):
-  time_out_count=0;
-  while(time_out_count<3):
+  failed_connection_count=0;
+  while(failed_connection_count<3):
     try:
       r = requests.get(link,timeout=10)
       break
@@ -18,9 +18,9 @@ def get_editorial(link):
     #  time_out_count+=1
     except (requests.exceptions.RequestException,socket.timeout):
       print "Failed connecting " + link +". Reconnecting.."
-      time_out_count+=1
+      failed_connection_count+=1
   
-  if (time_out_count==3):
+  if (failed_connection_count==3):
     failure_links.write(link+'\n');
     return []
   
@@ -29,8 +29,8 @@ def get_editorial(link):
   return map( lambda x: x.parent['href'] if re.match(r"http.*",x.parent['href']) else "http://codeforces.com"+x.parent['href'], soup.findAll(name='a',text=re.compile(r"Tutorial")) )
     
 def contenting_random(link):
-  time_out_count=0;
-  while(time_out_count<3):
+  failed_connection_count=0;
+  while(failed_connection_count<3):
     try:
       r = requests.get(link,timeout=10)
       break
@@ -39,9 +39,9 @@ def contenting_random(link):
     #  time_out_count+=1
     except (requests.exceptions.RequestException,socket.timeout):
       print "Failed connecting " + link +". Reconnecting.."
-      time_out_count+=1
+      failed_connection_count+=1
   
-  if (time_out_count==3):
+  if (failed_connection_count==3):
     failure_links.write(link+'\n');
     return []
   
@@ -49,15 +49,15 @@ def contenting_random(link):
   soup = BeautifulSoup(r.text)
   entry = soup.findAll(attrs={'class':'ttypography'})[0].text
  
-  return re.compile(r'.*random.*').match(entry)
+  return re.compile(r'.*'+key_word+'*').match(entry)
 
 def check(link):
   return filter( contenting_random, get_editorial(link) )
   
 entries = open('entries.txt','a')
 suffix = "http://codeforces.com/contest/"
-for i in range(472,600):
-  print "Checking contest #"+str(i)
+for i in range(1,600):
+  print "Checking contest #"+str(i)+'...'
   valids = check(suffix+str(i))
   #print valids
   for link in valids:
